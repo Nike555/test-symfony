@@ -28,7 +28,7 @@ class Prize
     private ?string $code = null;
 
     #[ORM\ManyToOne(inversedBy: 'prizes')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, columnDefinition: "INT NOT NULL AFTER `id`")]
     private ?Language $language = null;
 
     public function getId(): ?int
