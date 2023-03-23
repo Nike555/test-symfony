@@ -2,9 +2,12 @@
 
 namespace App\Form;
 
+use App\Entity\Language;
 use App\Entity\User;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -57,6 +60,15 @@ class RegistrationFormType extends AbstractType
                     ]),
                 ],
                 'label' => false
+            ])
+            ->add('language', EntityType::class, [
+                'class' => Language::class,
+                'attr' => [
+                    'class' => 'form-control',
+                ],
+                'choice_label' => function ($language) {
+                    return $language->getName();
+                }
             ])
         ;
     }
