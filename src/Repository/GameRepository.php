@@ -39,6 +39,17 @@ class GameRepository extends ServiceEntityRepository
         }
     }
 
+    public function checkExistOnDateInterval(\DateTimeInterface $startDate, \DateTimeInterface $endDate) :bool
+    {
+        $existGame = $this->createQueryBuilder('g')
+            ->where('g.start_date BETWEEN :start AND :end')
+            ->orWhere('g.end_date BETWEEN :start AND :end')
+            ->setParameter('start', $startDate->format('Y-m-d'))
+            ->setParameter('end', $endDate->format('Y-m-d'))
+            ->getQuery()
+            ->execute();
+        return (bool)$existGame;
+    }
 //    /**
 //     * @return Game[] Returns an array of Game objects
 //     */

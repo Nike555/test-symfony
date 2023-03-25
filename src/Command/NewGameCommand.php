@@ -47,18 +47,13 @@ class NewGameCommand extends Command
         $startDate = \DateTime::createFromFormat('Y-m-d', $input->getOption('date'));
         $endDate = $this->getEndDate($startDate);
 
-        $existGameInInterval = $this->checkExistOnDateInterval($startDate, $endDate);
+        $existGameInInterval = $this->entityManager->getRepository(Game::class)->checkExistOnDateInterval($startDate, $endDate);
         if ($existGameInInterval) {
             $output->writeln('Game was NOT created! Because on this days already exist game.');
         }
         else {
-            $game = new Game();
-            $game->setName($name);
-            $game->setStartDate($startDate);
-            $game->setEndDate($endDate);
+            $this->saveGame(name: $name, startDate: $startDate, endDate: $endDate);
 
-            $this->entityManager->persist($game);
-            $this->entityManager->flush();
             $output->writeln('Game was created!');
             return Command::SUCCESS;
         }
@@ -72,17 +67,15 @@ class NewGameCommand extends Command
         return $endDate;
     }
 
-    private function checkExistOnDateInterval(\DateTimeInterface $startDate, \DateTimeInterface $endDate) :bool
+    private function saveGame($name, $startDate, $endDate) :void
     {
-        $gameRepository = $this->entityManager->getRepository(Game::class);
-        $existGame = $gameRepository->createQueryBuilder('g')
-            ->where('g.start_date BETWEEN :start AND :end')
-            ->orWhere('g.end_date BETWEEN :start AND :end')
-            ->setParameter('start', $startDate->format('Y-m-d'))
-            ->setParameter('end', $endDate->format('Y-m-d'))
-            ->getQuery()
-            ->execute();
-        return (bool)$existGame;
+        $game = new Game();
+        $game->setName($name);
+        $game->setStartDate($startDate);
+        $game->setEndDate($endDate);
+
+        $this->entityManager->persist($game);
+        $this->entityManager->flush();
     }
 
 }
