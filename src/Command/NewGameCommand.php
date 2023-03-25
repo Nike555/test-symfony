@@ -60,14 +60,14 @@ class NewGameCommand extends Command
         return Command::FAILURE;
     }
 
-    private function getEndDate(\DateTimeInterface $startDate) :\DateTimeInterface
+    private function getEndDate(\DateTimeInterface $startDate): \DateTimeInterface
     {
         $endDate = \DateTime::createFromInterface($startDate);
         $endDate->modify('+1 day');
         return $endDate;
     }
 
-    private function saveGame($name, $startDate, $endDate) :void
+    private function saveGame($name, $startDate, $endDate): void
     {
         $game = new Game();
         $game->setName($name);
