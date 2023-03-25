@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\GameRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -22,6 +24,14 @@ class Game
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $end_date = null;
+
+    #[ORM\OneToMany(mappedBy: 'game', targetEntity: UserGamePrize::class)]
+    private Collection $userGamePrizes;
+
+    public function __construct()
+    {
+        $this->userGamePrizes = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -60,6 +70,36 @@ class Game
     public function setEndDate(\DateTimeInterface $end_date): self
     {
         $this->end_date = $end_date;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserGamePrize>
+     */
+    public function getUserGamePrizes(): Collection
+    {
+        return $this->userGamePrizes;
+    }
+
+    public function addUserGamePrize(UserGamePrize $userGamePrize): self
+    {
+        if (!$this->userGamePrizes->contains($userGamePrize)) {
+            $this->userGamePrizes->add($userGamePrize);
+            $userGamePrize->setGame($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserGamePrize(UserGamePrize $userGamePrize): self
+    {
+        if ($this->userGamePrizes->removeElement($userGamePrize)) {
+            // set the owning side to null (unless already changed)
+            if ($userGamePrize->getGame() === $this) {
+                $userGamePrize->setGame(null);
+            }
+        }
 
         return $this;
     }

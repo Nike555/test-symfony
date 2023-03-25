@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -32,6 +34,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToOne(inversedBy: 'users')]
     #[ORM\JoinColumn(nullable: false, columnDefinition: "INT NOT NULL AFTER `id`")]
     private ?Language $language = null;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserGamePrize::class)]
+    private Collection $userGamePrizes;
+
+    public function __construct()
+    {
+        $this->userGamePrizes = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -111,6 +121,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLanguage(?Language $language): self
     {
         $this->language = $language;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserGamePrize>
+     */
+    public function getUserGamePrizes(): Collection
+    {
+        return $this->userGamePrizes;
+    }
+
+    public function addUserGamePrize(UserGamePrize $userGamePrize): self
+    {
+        if (!$this->userGamePrizes->contains($userGamePrize)) {
+            $this->userGamePrizes->add($userGamePrize);
+            $userGamePrize->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserGamePrize(UserGamePrize $userGamePrize): self
+    {
+        if ($this->userGamePrizes->removeElement($userGamePrize)) {
+            // set the owning side to null (unless already changed)
+            if ($userGamePrize->getUser() === $this) {
+                $userGamePrize->setUser(null);
+            }
+        }
 
         return $this;
     }

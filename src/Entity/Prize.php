@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PrizeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -30,6 +32,14 @@ class Prize
     #[ORM\ManyToOne(inversedBy: 'prizes')]
     #[ORM\JoinColumn(nullable: false, columnDefinition: "INT NOT NULL AFTER `id`")]
     private ?Language $language = null;
+
+    #[ORM\OneToMany(mappedBy: 'prize', targetEntity: UserGamePrize::class)]
+    private Collection $userGamePrizes;
+
+    public function __construct()
+    {
+        $this->userGamePrizes = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -92,6 +102,36 @@ class Prize
     public function setLanguage(?Language $language): self
     {
         $this->language = $language;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserGamePrize>
+     */
+    public function getUserGamePrizes(): Collection
+    {
+        return $this->userGamePrizes;
+    }
+
+    public function addUserGamePrize(UserGamePrize $userGamePrize): self
+    {
+        if (!$this->userGamePrizes->contains($userGamePrize)) {
+            $this->userGamePrizes->add($userGamePrize);
+            $userGamePrize->setPrize($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserGamePrize(UserGamePrize $userGamePrize): self
+    {
+        if ($this->userGamePrizes->removeElement($userGamePrize)) {
+            // set the owning side to null (unless already changed)
+            if ($userGamePrize->getPrize() === $this) {
+                $userGamePrize->setPrize(null);
+            }
+        }
 
         return $this;
     }
