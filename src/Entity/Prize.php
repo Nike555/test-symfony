@@ -9,7 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PrizeRepository::class)]
-#[ORM\Index(columns: ['partner_code'], name: 'columns_idx')]
+#[ORM\Index(columns: ['partner_code', 'unique_code'], name: 'columns_idx')]
 class Prize
 {
     #[ORM\Id]
@@ -38,6 +38,9 @@ class Prize
 
     #[ORM\Column]
     private ?bool $won = null;
+
+    #[ORM\Column(type: Types::BIGINT)]
+    private ?string $unique_code = null;
 
     public function __construct()
     {
@@ -147,6 +150,18 @@ class Prize
     public function setWon(bool $won): self
     {
         $this->won = $won;
+
+        return $this;
+    }
+
+    public function getUniqueCode(): ?string
+    {
+        return $this->unique_code;
+    }
+
+    public function setUniqueCode(string $unique_code): self
+    {
+        $this->unique_code = $unique_code;
 
         return $this;
     }
