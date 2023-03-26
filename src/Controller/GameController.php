@@ -26,9 +26,11 @@ class GameController extends AbstractController
     {}
 
     #[Route('/game', name: 'game', methods: ['GET'])]
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $userCurrentGamePrize = $this->entityManager->getRepository(UserGamePrize::class)->getUserGamePrize($this->getUser());
+        $playGame['status'] = $request->query->get('status');
+        $playGame['message'] = $request->query->get('message');
 
         $userGamePrize = new UserGamePrize();
         $form = $this->createForm(UserPlayGameFormType::class, $userGamePrize);
@@ -38,6 +40,7 @@ class GameController extends AbstractController
             'user_can_play' => $this->gameRequirementsService->check(),
             'error' => $this->gameRequirementsService->getError(),
             'user_current_game_prize' => $userCurrentGamePrize,
+            'play_game' => $playGame,
         ]);
     }
 
@@ -56,7 +59,7 @@ class GameController extends AbstractController
             if ($playGameService->play()) {
                 $response = [
                     'status' => 'success',
-                    'message' => 'You on prize !'
+                    'message' => 'You won prize !'
                 ];
             }
             else {

@@ -76,6 +76,7 @@ class UserGamePrizeRepository extends ServiceEntityRepository
             ->andWhere('pt.language = :language_id')
             ->setParameter('user_id', $user->getId())
             ->setParameter('language_id', $userLanguageId)
+            ->orderBy('ugp.id', 'DESC')
             ->getQuery()
             ->execute();
 

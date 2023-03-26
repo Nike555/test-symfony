@@ -13,9 +13,19 @@
                         <button type="submit" class="btn btn-success">Get prize!</button>
                     {{ form_end(playGameForm) }}
                 {% else %}
-                    {% if error %}
-                        <p><b>Error: {{ error}}</b></p>
-                        <hr>
+                    {% if play_game.status %}
+                        {% if play_game.status is same as('success') %}
+                            <h2>Thanks for play the game!</h2>
+                            <p>{{ play_game.message }}</p>
+                        {% else %}
+                            <p><b>Error on play this game: {{ play_game.message }}</b></p>
+                            <hr>
+                        {% endif %}
+                    {% else %}
+                        {% if error %}
+                            <p><b>Error: {{ error }}</b></p>
+                            <hr>
+                        {% endif %}
                     {% endif %}
                     {% if user_current_game_prize %}
                         <p><b>Current game name:</b> {{ user_current_game_prize.game.name }}</p>
