@@ -44,21 +44,28 @@ class GameController extends AbstractController
     #[Route('/game', name: 'game_get_reward', methods: ['POST'])]
     public function getReward(
         Request $request,
-        EventDispatcherInterface $eventDispatcher
+        PlayGameService $playGameService
     ): Response
     {
+        $response = [];
         $userGamePrize = new UserGamePrize();
         $form = $this->createForm(UserPlayGameFormType::class, $userGamePrize);
         $form->handleRequest($request);
 
         if ($this->gameRequirementsService->check() && $form->isSubmitted() && $form->isValid()) {
-            $userGamePrizeData = $form->getData();
-            dump($userGamePrizeData);
-
-            //$playGameService->play();
-
-            //return $this->redirectToRoute('blog_post', ['slug' => $post->getSlug()]);
+            if ($playGameService->play()) {
+                $response = [
+                    'status' => 'success',
+                    'message' => 'You on prize !'
+                ];
+            }
+            else {
+                $response = [
+                    'status' => 'fail',
+                    'message' => $playGameService->getError()
+                ];
+            }
         }
-        return $this->redirectToRoute('game');
+        return $this->redirectToRoute('game', $response);
     }
 }

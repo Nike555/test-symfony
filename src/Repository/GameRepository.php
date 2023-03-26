@@ -53,6 +53,14 @@ class GameRepository extends ServiceEntityRepository
         return (bool)$existGame;
     }
 
+    public function getCurrentDayGame(): Game
+    {
+        return $this->createQueryBuilder('g')
+            ->where('CURRENT_DATE() BETWEEN g.start_date AND g.end_date')
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function currentGameCountDays(): int
     {
         $currentGameDates = $this->createQueryBuilder('g')
