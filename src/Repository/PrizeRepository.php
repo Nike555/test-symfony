@@ -79,4 +79,11 @@ class PrizeRepository extends ServiceEntityRepository
             ->setParameter(':unique_code', $prizeUniqueCode);
         $q->execute();
     }
+
+    public function resetAllWonPrizes()
+    {
+        $q = $this->getEntityManager()
+            ->createQuery("UPDATE App\Entity\Prize p SET p.won = 0");
+        $q->execute();
+    }
 }

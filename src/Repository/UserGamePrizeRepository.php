@@ -80,7 +80,7 @@ class UserGamePrizeRepository extends ServiceEntityRepository
             ->getQuery()
             ->execute();
 
-        if ($gameInfo !== null) {
+        if (!empty($gameInfo)) {
             if (!empty($gameInfo[1])) {
                 $gameInfo[0]->partner = $gameInfo[1];
             }

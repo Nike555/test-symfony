@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Entity\Game;
+use App\Entity\Prize;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -51,6 +52,7 @@ class NewGameCommand extends Command
         }
         else {
             $this->saveGame(name: $name, startDate: $startDate, endDate: $endDate);
+            $this->entityManager->getRepository(Prize::class)->resetAllWonPrizes();
 
             $output->writeln('Game was created!');
             return Command::SUCCESS;
