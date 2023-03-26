@@ -40,7 +40,7 @@ class NewGameCommand extends Command
             ->addOption('date', null, InputOption::VALUE_REQUIRED, 'Date when game will start',  (new \DateTime())->format('Y-m-d'));
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $name = $input->getOption('name');
         $startDate = \DateTime::createFromFormat('Y-m-d', $input->getOption('date'));
