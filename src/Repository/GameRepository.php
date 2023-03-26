@@ -69,9 +69,12 @@ class GameRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
 
-        $startDay = new \DateTime($currentGameDates['start_date']->format('Y-m-d'));
-        $endDay = new \DateTime($currentGameDates['end_date']->format('Y-m-d'));
-        $interval = $endDay->diff($startDay);
-        return $interval->days + 1; // Adding 1 to include both the start and end dates
+        if ($currentGameDates) {
+            $startDay = new \DateTime($currentGameDates['start_date']->format('Y-m-d'));
+            $endDay = new \DateTime($currentGameDates['end_date']->format('Y-m-d'));
+            $interval = $endDay->diff($startDay);
+            return $interval->days + 1; // Adding 1 to include both the start and end dates
+        }
+        return 0;
     }
 }
