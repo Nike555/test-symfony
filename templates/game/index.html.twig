@@ -13,11 +13,16 @@
                         <button type="submit" class="btn btn-success">Get prize!</button>
                     {{ form_end(playGameForm) }}
                 {% else %}
-                    <p>Sorry, you already won prize in this game.</p>
-                    <p><b>Current game name:</b> {{ user_current_game_prize.game.name }}</p>
-                    <p><b>Your prize was:</b> {{ user_current_game_prize.prize.name }}</p>
-                    <p><b>Partner:</b> {{ user_current_game_prize.partner.name }}</p>
-                    <p><b>Partner URL:</b> {{ user_current_game_prize.partner.url }}</p>
+                    {% if error %}
+                        <p><b>Error: {{ error}}</b></p>
+                        <hr>
+                    {% endif %}
+                    {% if user_current_game_prize %}
+                        <p><b>Current game name:</b> {{ user_current_game_prize.game.name }}</p>
+                        <p><b>Your prize was:</b> {{ user_current_game_prize.prize.name }}</p>
+                        <p><b>Partner:</b> {{ user_current_game_prize.partner.name }}</p>
+                        <p><b>Partner URL:</b> {{ user_current_game_prize.partner.url }}</p>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>

@@ -48,19 +48,17 @@ class UserGamePrizeRepository extends ServiceEntityRepository
         }
     }
 
-    public function checkUserCanPlay(UserInterface $user): bool
+    public function checkUserPlayedGame(UserInterface $user): array
     {
-        $userCanPlay = $this->createQueryBuilder('ugp')
-            ->select('COUNT(ugp.id)')
+        $userPlayedThisGame = $this->createQueryBuilder('ugp')
             ->leftJoin(User::class, 'u', Join::WITH, 'u.id = ugp.user')
             ->leftJoin(Game::class, 'g', Join::WITH, 'g.id = ugp.game')
-            ->where(':current_day BETWEEN g.start_date AND g.end_date')
+            ->where('CURRENT_DATE() BETWEEN g.start_date AND g.end_date')
             ->andWhere('ugp.user = :user_id')
             ->setParameter('user_id', $user->getId())
-            ->setParameter('current_day', $this->currentDay)
             ->getQuery()
-            ->getSingleScalarResult();
-        return !$userCanPlay;
+            ->execute();
+        return $userPlayedThisGame;
     }
 
     public function getUserGamePrize(UserInterface $user): ?UserGamePrize
@@ -73,11 +71,10 @@ class UserGamePrizeRepository extends ServiceEntityRepository
             ->leftJoin(Game::class, 'g', Join::WITH, 'g.id = ugp.game')
             ->leftJoin(Prize::class, 'pr', Join::WITH, 'pr.id = ugp.prize')
             ->leftJoin(Partner::class, 'pt', Join::WITH, 'pt.code = pr.partner_code')
-            ->where(':current_day BETWEEN g.start_date AND g.end_date')
+            ->where('CURRENT_DATE() BETWEEN g.start_date AND g.end_date')
             ->andWhere('ugp.user = :user_id')
             ->andWhere('pt.language = :language_id')
             ->setParameter('user_id', $user->getId())
-            ->setParameter('current_day', $this->currentDay)
             ->setParameter('language_id', $userLanguageId)
             ->getQuery()
             ->execute();
@@ -89,5 +86,10 @@ class UserGamePrizeRepository extends ServiceEntityRepository
             return $gameInfo[0];
         }
         return null;
+    }
+
+    public function getCountWonTodayPrizes(): int
+    {
+        return $this->count(['date' => new \DateTime($this->currentDay)]);
     }
 }

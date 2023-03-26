@@ -3,7 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Game;
+use App\Entity\Prize;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -50,28 +52,18 @@ class GameRepository extends ServiceEntityRepository
             ->execute();
         return (bool)$existGame;
     }
-//    /**
-//     * @return Game[] Returns an array of Game objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('g')
-//            ->andWhere('g.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('g.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
 
-//    public function findOneBySomeField($value): ?Game
-//    {
-//        return $this->createQueryBuilder('g')
-//            ->andWhere('g.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    public function currentGameCountDays(): int
+    {
+        $currentGameDates = $this->createQueryBuilder('g')
+            ->select('g.start_date', 'g.end_date')
+            ->where('CURRENT_DATE() BETWEEN g.start_date AND g.end_date')
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        $startDay = new \DateTime($currentGameDates['start_date']->format('Y-m-d'));
+        $endDay = new \DateTime($currentGameDates['end_date']->format('Y-m-d'));
+        $interval = $endDay->diff($startDay);
+        return $interval->days + 1; // Adding 1 to include both the start and end dates
+    }
 }
