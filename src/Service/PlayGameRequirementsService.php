@@ -35,7 +35,6 @@ class PlayGameRequirementsService
 
     private function checkTime(): bool
     {
-        return true;
         $correctTimeInterval = GameUtils::checkPlayTimeInterval();
         if (!$correctTimeInterval) {
             $this->setError('You can\'t play in this time interval!');
