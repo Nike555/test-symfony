@@ -36,6 +36,9 @@ class Prize
     #[ORM\OneToMany(mappedBy: 'prize', targetEntity: UserGamePrize::class)]
     private Collection $userGamePrizes;
 
+    #[ORM\Column]
+    private ?bool $won = null;
+
     public function __construct()
     {
         $this->userGamePrizes = new ArrayCollection();
@@ -132,6 +135,18 @@ class Prize
                 $userGamePrize->setPrize(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isWon(): ?bool
+    {
+        return $this->won;
+    }
+
+    public function setWon(bool $won): self
+    {
+        $this->won = $won;
 
         return $this;
     }
