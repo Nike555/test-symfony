@@ -72,15 +72,22 @@ class PlayGameRequirementsService
         $userLanguageId = $this->currentUser->getLanguage()->getId();
 
         $gameCountDays = $this->entityManager->getRepository(Game::class)->currentGameCountDays();
-        $totalPrizes = $this->entityManager->getRepository(Prize::class)->totalPrizesByUserLanguage($userLanguageId);
-        $countAvailablePrizesPerDay = floor($totalPrizes / $gameCountDays);
-        $countPrizesWonToday = $this->entityManager->getRepository(UserGamePrize::class)->getCountWonTodayPrizes();
-        $availablePrizes = $countAvailablePrizesPerDay - $countPrizesWonToday;
+        if ($gameCountDays) {
+            $totalPrizes = $this->entityManager->getRepository(Prize::class)->totalPrizesByUserLanguage($userLanguageId);
+            $countAvailablePrizesPerDay = floor($totalPrizes / $gameCountDays);
+            $countPrizesWonToday = $this->entityManager->getRepository(UserGamePrize::class)->getCountWonTodayPrizes();
+            $availablePrizes = $countAvailablePrizesPerDay - $countPrizesWonToday;
 
-        if (!$availablePrizes) {
-            $this->setError('Sorry, all prizes per today was won.');
+            if (!$availablePrizes) {
+                $this->setError('Sorry, all prizes per today was won.');
+                return false;
+            }
+            return true;
         }
-        return true;
+        else {
+            $this->setError('Today don\'t exist some game.');
+            return false;
+        }
     }
 
     private function setError(string $error)
