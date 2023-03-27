@@ -9,6 +9,7 @@ use App\Form\UserPlayGameFormType;
 use App\Service\GameService;
 use App\Service\PlayGameRequirementsService;
 use App\Service\PlayGameService;
+use App\Service\UserGamePrizeService;
 use App\Utils\GameUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,7 +27,8 @@ class GameController extends AbstractController
     public function __construct(
         private EntityManagerInterface $entityManager,
         private PlayGameRequirementsService $gameRequirementsService,
-        private GameService $gameService
+        private GameService $gameService,
+        private UserGamePrizeService $userGamePrizeService
     )
     {}
 
@@ -79,31 +81,35 @@ class GameController extends AbstractController
         return $this->json($currentGame);
     }
 
-    #[Route('/game', name: 'game_get_reward', methods: ['POST'])]
+    #[Route('/games/play', name: 'game_play', methods: ['GET'])]
     public function getReward(
         Request $request,
         PlayGameService $playGameService
     ): Response
     {
-        $response = [];
-        $userGamePrize = new UserGamePrize();
-        $form = $this->createForm(UserPlayGameFormType::class, $userGamePrize);
-        $form->handleRequest($request);
-
-        if ($this->gameRequirementsService->check() && $form->isSubmitted() && $form->isValid()) {
+        $userCurrentGamePrize = $this->userGamePrizeService->getUserGamePrize($this->getUser());
+        if ($this->gameRequirementsService->check()) {
             if ($playGameService->play()) {
                 $response = [
-                    'status' => 'success',
-                    'message' => 'You won prize !'
+                    'status' => Response::HTTP_OK,
+                    'message' => 'You won prize !',
+                    'prize_info' => $userCurrentGamePrize
                 ];
             }
             else {
                 $response = [
-                    'status' => 'fail',
-                    'message' => $playGameService->getError()
+                    'status' => Response::HTTP_BAD_REQUEST,
+                    'message' => $playGameService->getError(),
                 ];
             }
         }
-        return $this->redirectToRoute('game', $response);
+        else {
+            $response = [
+                'status' => Response::HTTP_BAD_REQUEST,
+                'message' => $this->gameRequirementsService->getError(),
+                'old_prize_info' => $userCurrentGamePrize
+            ];
+        }
+        return $this->json($response, $response['status']);
     }
 }
