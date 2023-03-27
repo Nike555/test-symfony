@@ -6,7 +6,11 @@ security:
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
         # used to reload user from session & other features (e.g. switch_user)
-        app_user_provider:
+        # app_user_provider:
+        #     entity:
+        #         class: App\Entity\User
+        #         property: email
+        users:
             entity:
                 class: App\Entity\User
                 property: email
@@ -14,26 +18,27 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
-            lazy: true
-            provider: app_user_provider
-            custom_authenticator: App\Security\LoginFormAuthenticator
-            logout:
-                path: logout
+        # main:
+        #     lazy: true
+        #     provider: app_user_provider
+        #     custom_authenticator: App\Security\LoginFormAuthenticator
+        #     logout:
+        #         path: logout
                 # where to redirect after logout
                 # target: app_any_route
         login:
             pattern: ^/api/v1/auth/login
             stateless: true
             json_login:
+                username_path: email
                 check_path: /api/v1/auth/login
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
-            api:
-                pattern: ^/api
-                stateless: true
-                jwt: ~
+        api:
+            pattern: ^/api
+            stateless: true
+            jwt: ~
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
