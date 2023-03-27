@@ -27,11 +27,11 @@ security:
                 # where to redirect after logout
                 # target: app_any_route
         login:
-            pattern: ^/api/v1/auth/login
+            pattern: ^/api/auth/login
             stateless: true
             json_login:
                 username_path: email
-                check_path: /api/v1/auth/login
+                check_path: /api/auth/login
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
