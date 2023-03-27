@@ -61,6 +61,11 @@ class GameRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    public function getAllGames(): ?array
+    {
+        return $this->findAll();
+    }
+
     public function currentGameCountDays(): int
     {
         $currentGameDates = $this->createQueryBuilder('g')

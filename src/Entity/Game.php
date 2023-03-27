@@ -103,4 +103,14 @@ class Game
 
         return $this;
     }
+
+    public function asArray()
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'start_date' => $this->getStartDate()->format('Y-m-d'),
+            'end_date' => $this->getEndDate()->format('Y-m-d'),
+        ];
+    }
 }
