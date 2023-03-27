@@ -2,9 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\Language;
 use App\Entity\User;
 use App\Form\RegistrationFormType;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use FOS\RestBundle\Context\Context;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
+use FOS\RestBundle\View\View;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,33 +17,30 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class RegistrationController extends AbstractController
+class RegistrationController extends AbstractFOSRestController
 {
-    #[Route('/register', name: 'register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
+    #[Route('/api/auth/register', name: 'register')]
+    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): View
     {
-        $user = new User();
-        $form = $this->createForm(RegistrationFormType::class, $user);
-        $form->handleRequest($request);
+        $email = $request->get('email');
+        $password = $request->get('password');
+        $languageName = $request->get('language');
+        $language = $entityManager->getRepository(Language::class)->findOneBy(['name' => $languageName]);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            // encode the plain password
-            $user->setPassword(
-                $userPasswordHasher->hashPassword(
-                    $user,
-                    $form->get('plainPassword')->getData()
-                )
-            );
+        $user = $entityManager->getRepository(User::class)->existByEmail($email);
 
-            $entityManager->persist($user);
-            $entityManager->flush();
-            // do anything else you need here, like send an email
-
-            return $this->redirectToRoute('home');
+        if ($user) {
+            return $this->view(['message' => 'User already exist'], Response::HTTP_CONFLICT);
         }
 
-        return $this->render('auth/register.html.twig', [
-            'registrationForm' => $form->createView(),
-        ]);
+        $user = new User();
+        $user->setEmail($email);
+        $user->setPassword($userPasswordHasher->hashPassword($user,$password));
+        $user->setLanguage($language);
+
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return $this->view($user, Response::HTTP_CREATED)->setContext((new Context())->setGroups(['public']));
     }
 }
