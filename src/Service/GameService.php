@@ -29,4 +29,14 @@ class GameService
         }
         return $data;
     }
+
+    public function getCurrentGame(): ?array
+    {
+        $game = $this->gameRepository->getCurrentDayGame();
+
+        if ($game instanceof Game) {
+            return $game->asArray();
+        }
+        return null;
+    }
 }

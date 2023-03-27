@@ -64,6 +64,21 @@ class GameController extends AbstractController
         return $this->json($games);
     }
 
+    #[Route('/games/current', name: 'get_current_game', methods: ['GET'])]
+    public function currentGame(Request $request): Response
+    {
+        $currentGame = $this->gameService->getCurrentGame();
+
+        if (!$currentGame) {
+            $data = [
+                'status' => 404,
+                'errors' => 'Game not found',
+            ];
+            return $this->json($data, $data['status']);
+        }
+        return $this->json($currentGame);
+    }
+
     #[Route('/game', name: 'game_get_reward', methods: ['POST'])]
     public function getReward(
         Request $request,
