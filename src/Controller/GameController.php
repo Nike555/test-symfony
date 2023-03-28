@@ -85,9 +85,10 @@ class GameController extends AbstractController
     #[Route('/games/play', name: 'game_play', methods: ['GET'])]
     public function getReward(PlayGameService $playGameService): Response
     {
-        $userCurrentGamePrize = $this->userGamePrizeService->getUserGamePrize($this->getUser());
         if ($this->gameRequirementsService->check()) {
             if ($playGameService->play()) {
+                $userCurrentGamePrize = $this->userGamePrizeService->getUserGamePrize($this->getUser());
+
                 $response = [
                     'status' => Response::HTTP_OK,
                     'message' => 'You won prize !',
@@ -105,8 +106,12 @@ class GameController extends AbstractController
             $response = [
                 'status' => Response::HTTP_BAD_REQUEST,
                 'message' => $this->gameRequirementsService->getError(),
-                'old_prize_info' => $userCurrentGamePrize
             ];
+
+            $oldUserPrize = $this->userGamePrizeService->getUserGamePrize($this->getUser());
+            if ($oldUserPrize) {
+                $response['old_prize_info'] = $oldUserPrize;
+            }
         }
         return $this->json($response, $response['status']);
     }
