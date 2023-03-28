@@ -58,7 +58,7 @@ class GameController extends AbstractController
 
         if (!$games) {
             $data = [
-                'status' => 404,
+                'status' => Response::HTTP_NOT_FOUND,
                 'errors' => 'Games not found',
             ];
             return $this->json($data, $data['status']);
@@ -67,13 +67,13 @@ class GameController extends AbstractController
     }
 
     #[Route('/games/current', name: 'get_current_game', methods: ['GET'])]
-    public function currentGame(Request $request): Response
+    public function currentGame(): Response
     {
         $currentGame = $this->gameService->getCurrentGame();
 
         if (!$currentGame) {
             $data = [
-                'status' => 404,
+                'status' => Response::HTTP_NOT_FOUND,
                 'errors' => 'Game not found',
             ];
             return $this->json($data, $data['status']);
@@ -82,10 +82,7 @@ class GameController extends AbstractController
     }
 
     #[Route('/games/play', name: 'game_play', methods: ['GET'])]
-    public function getReward(
-        Request $request,
-        PlayGameService $playGameService
-    ): Response
+    public function getReward(PlayGameService $playGameService): Response
     {
         $userCurrentGamePrize = $this->userGamePrizeService->getUserGamePrize($this->getUser());
         if ($this->gameRequirementsService->check()) {
