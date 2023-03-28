@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\Game;
 use App\Entity\User;
 use App\Entity\UserGamePrize;
-use App\Form\UserPlayGameFormType;
 use App\Service\CreateGameService;
 use App\Service\GameService;
 use App\Service\PlayGameRequirementsService;
@@ -13,6 +12,8 @@ use App\Service\PlayGameService;
 use App\Service\UserGamePrizeService;
 use App\Utils\GameUtils;
 use Doctrine\ORM\EntityManagerInterface;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
+use FOS\RestBundle\View\View;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,7 +24,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 #[Route('/api', name: 'api_')]
-class GameController extends AbstractController
+class GameController extends AbstractFOSRestController
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
@@ -34,7 +35,7 @@ class GameController extends AbstractController
     {}
 
     #[Route('/games', name: 'store_game', methods: ['POST'])]
-    public function store(Request $request, CreateGameService $createGameService): Response
+    public function store(Request $request, CreateGameService $createGameService): View
     {
         $name = $request->get('name');
         $date = $request->get('date');
@@ -49,11 +50,11 @@ class GameController extends AbstractController
         }
         $response['message'] = $createGameService->getResponseMessage();
 
-        return $this->json($response, $response['status']);
+        return $this->view($response, $response['status']);
     }
 
     #[Route('/games', name: 'get_games', methods: ['GET'])]
-    public function index(): Response
+    public function index(): View
     {
         $games = $this->gameService->getAllGames();
 
@@ -62,13 +63,13 @@ class GameController extends AbstractController
                 'status' => Response::HTTP_NOT_FOUND,
                 'errors' => 'Games not found',
             ];
-            return $this->json($data, $data['status']);
+            return $this->view($data, $data['status']);
         }
-        return $this->json($games);
+        return $this->view($games, Response::HTTP_OK);
     }
 
     #[Route('/games/current', name: 'get_current_game', methods: ['GET'])]
-    public function currentGame(): Response
+    public function currentGame(): View
     {
         $currentGame = $this->gameService->getCurrentGame();
 
@@ -77,13 +78,13 @@ class GameController extends AbstractController
                 'status' => Response::HTTP_NOT_FOUND,
                 'errors' => 'Game not found',
             ];
-            return $this->json($data, $data['status']);
+            return $this->view($data, $data['status']);
         }
-        return $this->json($currentGame);
+        return $this->view($currentGame, Response::HTTP_OK);
     }
 
     #[Route('/games/play', name: 'game_play', methods: ['GET'])]
-    public function getReward(PlayGameService $playGameService): Response
+    public function getReward(PlayGameService $playGameService): View
     {
         if ($this->gameRequirementsService->check()) {
             if ($playGameService->play()) {
@@ -113,6 +114,6 @@ class GameController extends AbstractController
                 $response['old_prize_info'] = $oldUserPrize;
             }
         }
-        return $this->json($response, $response['status']);
+        return $this->view($response, $response['status']);
     }
 }
