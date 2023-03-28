@@ -6,6 +6,7 @@ use App\Entity\Game;
 use App\Entity\User;
 use App\Entity\UserGamePrize;
 use App\Form\UserPlayGameFormType;
+use App\Service\CreateGameService;
 use App\Service\GameService;
 use App\Service\PlayGameRequirementsService;
 use App\Service\PlayGameService;
@@ -32,23 +33,23 @@ class GameController extends AbstractController
     )
     {}
 
-    #[Route('/game', name: 'game', methods: ['GET'])]
-    public function index2(Request $request): Response
+    #[Route('/games', name: 'store_game', methods: ['POST'])]
+    public function store(Request $request, CreateGameService $createGameService): Response
     {
-        $userCurrentGamePrize = $this->entityManager->getRepository(UserGamePrize::class)->getUserGamePrize($this->getUser());
-        $playGame['status'] = $request->query->get('status');
-        $playGame['message'] = $request->query->get('message');
+        $name = $request->get('name');
+        $date = $request->get('date');
 
-        $userGamePrize = new UserGamePrize();
-        $form = $this->createForm(UserPlayGameFormType::class, $userGamePrize);
+        $createGameService->setName($name);
+        $createGameService->setDate($date);
+        if ($createGameService->create()) {
+            $response['status'] = Response::HTTP_CREATED;
+        }
+        else {
+            $response['status'] = Response::HTTP_BAD_REQUEST;
+        }
+        $response['message'] = $createGameService->getResponseMessage();
 
-        return $this->render('game/index.html.twig', [
-            'playGameForm' => $form->createView(),
-            'user_can_play' => $this->gameRequirementsService->check(),
-            'error' => $this->gameRequirementsService->getError(),
-            'user_current_game_prize' => $userCurrentGamePrize,
-            'play_game' => $playGame,
-        ]);
+        return $this->json($response, $response['status']);
     }
 
     #[Route('/games', name: 'get_games', methods: ['GET'])]
