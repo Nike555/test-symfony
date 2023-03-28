@@ -1,4 +1,8 @@
 security:
+
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_ADMIN
+
     enable_authenticator_manager: true
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
@@ -58,6 +62,7 @@ security:
     access_control:
         - { path: ^/api/auth/(login|register), roles: PUBLIC_ACCESS }
         - { path: ^/api/auth/token/refresh, roles: PUBLIC_ACCESS }
+        - { path: ^/api/games, methods: [POST], roles: ROLE_ADMIN }
         - { path: ^/api,               roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
