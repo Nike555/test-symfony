@@ -8,14 +8,10 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class GameService
 {
-    private GameRepository $gameRepository;
-
     public function __construct(
-        private EntityManagerInterface $entityManager,
+        private GameRepository $gameRepository
     )
-    {
-        $this->gameRepository = $this->entityManager->getRepository(Game::class);
-    }
+    {}
 
     public function getAllGames(): array
     {

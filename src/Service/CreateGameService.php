@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Game;
 use App\Entity\Prize;
+use App\Repository\GameRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CreateGameService
@@ -15,9 +16,10 @@ class CreateGameService
     private \DateTimeInterface $endDate;
 
     public function __construct(
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        private GameRepository $gameRepository
     )
-    {}
+    { }
 
     public function setName(string $name): void
     {
@@ -33,7 +35,7 @@ class CreateGameService
     {
         $this->setDateIntervals();
 
-        $existGameInInterval = $this->entityManager->getRepository(Game::class)->checkExistOnDateInterval($this->startDate, $this->endDate);
+        $existGameInInterval = $this->gameRepository->checkExistOnDateInterval($this->startDate, $this->endDate);
         if ($existGameInInterval) {
             $this->setResponseMessage('Game was NOT created! Because on this days already exist game.');
         }

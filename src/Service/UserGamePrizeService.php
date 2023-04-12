@@ -3,20 +3,17 @@
 namespace App\Service;
 
 use App\Entity\UserGamePrize;
+use App\Repository\GameRepository;
 use App\Repository\UserGamePrizeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class UserGamePrizeService
 {
-    private UserGamePrizeRepository $userGamePrizeRepository;
-
     public function __construct(
-        private EntityManagerInterface $entityManager,
+        private UserGamePrizeRepository $userGamePrizeRepository
     )
-    {
-        $this->userGamePrizeRepository = $this->entityManager->getRepository(UserGamePrize::class);
-    }
+    { }
 
     public function getUserGamePrize(UserInterface $user): ?array
     {
